@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.monoko.reply-notifier</string>
+
+    <!-- Replace __REPLY_NOTIFIER_ROOT__ with your local project path -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>__REPLY_NOTIFIER_ROOT__/.venv/bin/python</string>
+        <string>__REPLY_NOTIFIER_ROOT__/scripts/watcher.py</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Replace __OPENCLAW_GATEWAY_TOKEN__ with gateway.remote.token -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>OPENCLAW_GATEWAY_TOKEN</key>
+        <string>__OPENCLAW_GATEWAY_TOKEN__</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__REPLY_NOTIFIER_ROOT__/logs/output.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__REPLY_NOTIFIER_ROOT__/logs/error.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>__REPLY_NOTIFIER_ROOT__</string>
+</dict>
+</plist>
