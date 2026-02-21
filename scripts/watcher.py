@@ -17,7 +17,7 @@ import websocket
 import http.client
 
 # Config
-GATEWAY_URL = "ws://127.0.0.1:18789"
+GATEWAY_URL = os.environ.get("GATEWAY_URL", "ws://127.0.0.1:18789")
 SEEN_MESSAGES_FILE = Path(__file__).parent.parent / "logs" / "seen_messages.json"
 GATEWAY_TOKEN = None
 
@@ -25,11 +25,24 @@ GATEWAY_TOKEN = None
 seen_messages = set()
 
 
+def _looks_like_placeholder(token: str) -> bool:
+    """Detect templated/invalid token strings from unconfigured plist/env."""
+    t = (token or "").strip()
+    if not t:
+        return True
+    if t.startswith("__") and t.endswith("__"):
+        return True
+    # Common accident: literal placeholder names are copied into env
+    if "PASTE" in t or "TOKEN" in t and len(t) < 24:
+        return True
+    return False
+
+
 def get_gateway_token():
     """Read token from environment or OpenClaw config."""
     # Check environment variable first (used by service)
     token = os.environ.get("OPENCLAW_GATEWAY_TOKEN")
-    if token:
+    if token and not _looks_like_placeholder(token):
         return token
     
     # Try device auth
@@ -137,6 +150,8 @@ def on_message(ws, message):
                 log("Press Ctrl+C to stop\n")
             else:
                 log(f"Connection failed: {data.get('error', 'unknown error')}")
+                # Force reconnect so we can re-read token sources.
+                ws.close()
                 return
         else:
             handle_event(data)
@@ -332,20 +347,20 @@ def check_for_new_replies(run_duration=0):
 def run_websocket_client():
     """Main WebSocket client loop with reconnection."""
     global GATEWAY_TOKEN
-    
-    GATEWAY_TOKEN = get_gateway_token()
-    
-    if GATEWAY_TOKEN:
-        log("Gateway token loaded")
-    else:
-        log("No gateway token found")
-        log("Set OPENCLAW_GATEWAY_TOKEN or configure gateway.remote.token in ~/.openclaw/openclaw.json")
-    
+
     load_seen_messages()
     log(f"Loaded {len(seen_messages)} seen message IDs")
-    
+
     while True:
         try:
+            # Re-read token on every reconnect in case gateway token rotated.
+            GATEWAY_TOKEN = get_gateway_token()
+            if GATEWAY_TOKEN:
+                log("Gateway token loaded")
+            else:
+                log("No gateway token found")
+                log("Set OPENCLAW_GATEWAY_TOKEN or configure gateway.remote.token in ~/.openclaw/openclaw.json")
+
             log(f"Connecting to {GATEWAY_URL}...")
             
             # Create WebSocket connection

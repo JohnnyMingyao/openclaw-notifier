@@ -8,8 +8,8 @@
     <!-- Replace __REPLY_NOTIFIER_ROOT__ with your local project path -->
     <key>ProgramArguments</key>
     <array>
-        <string>__REPLY_NOTIFIER_ROOT__/.venv/bin/python</string>
-        <string>__REPLY_NOTIFIER_ROOT__/scripts/watcher.py</string>
+        <string>/bin/bash</string>
+        <string>__REPLY_NOTIFIER_ROOT__/scripts/run-with-token.sh</string>
     </array>
 
     <key>RunAtLoad</key>
@@ -18,12 +18,7 @@
     <key>KeepAlive</key>
     <true/>
 
-    <!-- Replace __OPENCLAW_GATEWAY_TOKEN__ with gateway.remote.token -->
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>OPENCLAW_GATEWAY_TOKEN</key>
-        <string>__OPENCLAW_GATEWAY_TOKEN__</string>
-    </dict>
+    <!-- Optional: you can still set OPENCLAW_GATEWAY_TOKEN manually if desired -->
 
     <key>StandardOutPath</key>
     <string>__REPLY_NOTIFIER_ROOT__/logs/output.log</string>
